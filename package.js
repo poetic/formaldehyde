@@ -1,5 +1,5 @@
 Package.describe({
-  name: 'formaldehyde',
+  name: 'poeticsystems:formaldehyde',
   version: '0.0.1',
   summary: 'Easily manage application state using URL parameters.',
   git: 'https://github.com/poetic/formaldehyde.git',
