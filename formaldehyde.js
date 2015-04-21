@@ -83,7 +83,7 @@ Meteor.Poetic.ParamManager = (function(){
   // ChangedURL is the event that will be listened to for url changes. Because of this you should always use
   // the paramManager to update the parameter url or ELSE your function will NOT be called.
 
-  var ChangedURL = new Event('urlchange');
+  //var ChangedURL = new Event('urlchange');
 
   // executeCallbacks will iterate through every object in the params array and execute its callback.
   // It will check its current value and the value in the URL if these values are the same then its callback
@@ -101,7 +101,7 @@ Meteor.Poetic.ParamManager = (function(){
 
   // register forward backwards and directly typed urls to fire this event.
   window.onpopstate = function(){
-    document.dispatchEvent(ChangedURL);
+    document.dispatchEvent('urlchange');
   }
 
   // when the document is ready register our callbacks function on the urlchange event.
