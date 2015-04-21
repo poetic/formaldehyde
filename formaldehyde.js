@@ -3,7 +3,7 @@ if(Meteor.isClient){
   // Some other module may have already declared it.. if not then it needs to be instantiated as an empty
   // object
   if (typeof Meteor.Poetic === "undefined") {
-    Meteor.Poetic = {};
+    Meteor.Poetic = {hey: "hey"};
   }
   else{
     console.log("Meteor.Poetic already exhists");
@@ -84,7 +84,7 @@ if(Meteor.isClient){
     // ChangedURL is the event that will be listened to for url changes. Because of this you should always use
     // the paramManager to update the parameter url or ELSE your function will NOT be called.
 
-    //var ChangedURL = new Event('urlchange');
+    var ChangedURL = new Event('urlchange');
 
     // executeCallbacks will iterate through every object in the params array and execute its callback.
     // It will check its current value and the value in the URL if these values are the same then its callback
@@ -101,7 +101,7 @@ if(Meteor.isClient){
     }
 
     // when the document is ready register our callbacks function on the urlchange event.
-    $(document).ready(function(){
+    window.onload = function(){
       document.addEventListener('urlchange', function(event){
         executeCallbacks();
       }, false);
@@ -109,7 +109,7 @@ if(Meteor.isClient){
       window.onpopstate = function(){
         document.dispatchEvent('urlchange');
       }
-    });
+    };
 
     // simple function that returns the value of a query param by name from the current url.
     function getParameterByName(name) {
