@@ -3,7 +3,7 @@ if(Meteor.isClient){
   // Some other module may have already declared it.. if not then it needs to be instantiated as an empty
   // object
   if (typeof Meteor.Poetic === "undefined") {
-    Meteor.Poetic = {hey: "hey"};
+    Meteor.Poetic = {};
   }
   else{
     console.log("Meteor.Poetic already exhists");
