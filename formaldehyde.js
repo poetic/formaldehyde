@@ -35,52 +35,62 @@ if(Meteor.isClient){
     // your function will most likely impliment some logic based on the value passed back.
 
     Interface.RegisterParam = function(paramName, callback){
+      // TODO add a test to check if paramName or callback are null and throw and error
       Params[Params.length] = {
-        param: paramName,
-        value: getParameterByName(paramName),
-        callback: function(){
-          callback(getParameterByName(paramName))
-        }
+        param: paramName,                                    // save the parameter name passed 
+        value: getParameterByName(paramName),                // find that parameter's current value in the URL
+        callback: function(){                                // create a function to call the passed function with
+          callback(getParameterByName(paramName, o))         // accept an object reference as a second parameter so  
+        }                                                    // the user can maintain scope without using function.bind()
       }
     }
 
     // This allows you to deregister a param callback by paramname
     Interface.DeRegisterParam = function(paramName){
-      for(var i = 0; i < Params.length; i++){
+      // iterate through the params object and find a match to the paramName passed then remove it
+      for(var i = 0; i < Params.length; i++){  
         if(Params[i].param === paramName){
           Params.splice(i, 1);
           i = Params.length;
         }
       }
     }
-
+    // build URL is the interface set to trigger any callbacks whose state may have changed from the current set call
+    // This is orientated around a direct javascript call. A template (html) linking method should be added that calls based
+    // on multiple param values being changed in one link.
     function buildUrl(p, v){
-      var base = window.location.href;
-      var search = '?'
-      for(var i = 0; i < Params.length; i++){
-        if(Params[i].value !== null){
-          search += Params[i].param + "=" + Params[i].value;
-          if(i < Params.length-1){
-            search += "&";
+      var base = window.location.href;                            // get the URL currently in state
+      var search = '?'                                            // save to default empty but with a param initializer
+      for(var i = 0; i < Params.length; i++){                     // iterate through all params O(n) we should probably speed up
+        if(Params[i].value !== null){                             // if the value isn't blank
+          search += Params[i].param + "=" + Params[i].value;      // add the param name and value to the url
+          if(i < Params.length-1){                                // if this isn't the last parameter in the array
+            search += "&";                                        // add another ampersand
           }
         }
       }
-      if(search === '?'){
-        search += p + "=" + v;
+      if(search === '?'){                                         // if search is still blank (worst case scenerio)
+        search += p + "=" + v;                                    // append the passed param and value to the url
       }
       else{
-        search += "&" + p + "=" + v;
-      }
-      window.location = base + search;
+        search += "&" + p + "=" + v;                              // otherwise make it add to the already existing param
+      }                                                           // chain                 
+      window.history.pushState({}, "NoOneUsesThis", base + search);  // store a new state in memory with the built url
     }
 
+    // this function needs to push the state of the window, build a new URL based on values passed and then trigger any
+    // callback functions that are rigistered to the change in url
     Interface.setParam = function(param, value){
-      buildUrl();
+      buildUrl(param, value);                              // pass the values to build a new url
+      document.dispatchEvent('urlchange');                 // url has changed fire an event to trigger callbacks
     }
-
+    
+    // allow the user an easy interface to find or poll for the value of param. This shouldn't ever be needed if the que
+    // Set and Link methods are used properly, but it does allow for restful principles and easier debugging.
     Interface.getParam = function(param){
-
+      return getParameterByName(param);
     }
+    
     // ChangedURL is the event that will be listened to for url changes. Because of this you should always use
     // the paramManager to update the parameter url or ELSE your function will NOT be called.
 
