@@ -8,6 +8,9 @@ if(Meteor.isClient){
   else{
     console.log("Meteor.Poetic already exhists");
   }
+  Meteor.startup(function () {
+    console.log('hey');
+  });
   // Register the ParamManager under the Meteor.Poetic namespace
   Meteor.Poetic.ParamManager = (function(){
 
@@ -37,18 +40,19 @@ if(Meteor.isClient){
     Interface.RegisterParam = function(paramName, callback){
       // TODO add a test to check if paramName or callback are null and throw and error
       Params[Params.length] = {
-        param: paramName,                                    // save the parameter name passed 
-        value: getParameterByName(paramName),                // find that parameter's current value in the URL
-        callback: function(){                                // create a function to call the passed function with
-          callback(getParameterByName(paramName, o))         // accept an object reference as a second parameter so  
+        param: paramName,                                    // save the parameter name passed
+        value: null,
+        callback: function(){
+          callback(getParameterByName(paramName));
         }                                                    // the user can maintain scope without using function.bind()
       }
+      console.log('registered');
     }
 
     // This allows you to deregister a param callback by paramname
     Interface.DeRegisterParam = function(paramName){
       // iterate through the params object and find a match to the paramName passed then remove it
-      for(var i = 0; i < Params.length; i++){  
+      for(var i = 0; i < Params.length; i++){
         if(Params[i].param === paramName){
           Params.splice(i, 1);
           i = Params.length;
@@ -58,39 +62,46 @@ if(Meteor.isClient){
     // build URL is the interface set to trigger any callbacks whose state may have changed from the current set call
     // This is orientated around a direct javascript call. A template (html) linking method should be added that calls based
     // on multiple param values being changed in one link.
-    function buildUrl(p, v){
-      var base = window.location.href;                            // get the URL currently in state
+    function buildUrl(p, v, r){
+      var base = window.location.origin;                            // get the URL currently in state
       var search = '?'                                            // save to default empty but with a param initializer
+      console.log(Params);
       for(var i = 0; i < Params.length; i++){                     // iterate through all params O(n) we should probably speed up
+        console.log('hey');
         if(Params[i].value !== null){                             // if the value isn't blank
-          search += Params[i].param + "=" + Params[i].value;      // add the param name and value to the url
+          if(p === Params[i].param){
+            search += p + "=" + v;
+          }
+          else{
+            search += Params[i].param + "=" + Params[i].value;      // add the param name and value to the url
+          }
           if(i < Params.length-1){                                // if this isn't the last parameter in the array
             search += "&";                                        // add another ampersand
           }
         }
       }
-      if(search === '?'){                                         // if search is still blank (worst case scenerio)
-        search += p + "=" + v;                                    // append the passed param and value to the url
+      if(r){
+        window.history.replaceState({}, "OptionalTitle", base + search);  // store a new state in memory with the built url
       }
       else{
-        search += "&" + p + "=" + v;                              // otherwise make it add to the already existing param
-      }                                                           // chain                 
-      window.history.pushState({}, "NoOneUsesThis", base + search);  // store a new state in memory with the built url
+        window.history.pushState({}, "OptionalTitle", base + search);  // store a new state in memory with the built url
+      }
     }
 
     // this function needs to push the state of the window, build a new URL based on values passed and then trigger any
-    // callback functions that are rigistered to the change in url
-    Interface.setParam = function(param, value){
-      buildUrl(param, value);                              // pass the values to build a new url
-      document.dispatchEvent('urlchange');                 // url has changed fire an event to trigger callbacks
+    // callback functions that are rigistered to the change in url replace is a third optional arguement to update params
+    // but not push the state forward.
+    Interface.setParam = function(param, value, replace){
+      buildUrl(param, value, replace);                              // pass the values to build a new url
+      console.log('fired');
+      document.dispatchEvent(ChangedURL);                 // url has changed fire an event to trigger callbacks
     }
-    
+
     // allow the user an easy interface to find or poll for the value of param. This shouldn't ever be needed if the que
     // Set and Link methods are used properly, but it does allow for restful principles and easier debugging.
     Interface.getParam = function(param){
       return getParameterByName(param);
     }
-    
     // ChangedURL is the event that will be listened to for url changes. Because of this you should always use
     // the paramManager to update the parameter url or ELSE your function will NOT be called.
 
@@ -113,12 +124,15 @@ if(Meteor.isClient){
     // when the document is ready register our callbacks function on the urlchange event.
     window.onload = function(){
       document.addEventListener('urlchange', function(event){
+        console.log('heard');
         executeCallbacks();
       }, false);
       // register forward backwards and directly typed urls to fire this event.
       window.onpopstate = function(){
-        document.dispatchEvent('urlchange');
+        document.dispatchEvent(ChangedURL);
+        console.log('fired');
       }
+      document.dispatchEvent(ChangedURL);
     };
 
     // simple function that returns the value of a query param by name from the current url.
