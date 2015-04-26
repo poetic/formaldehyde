@@ -8,9 +8,6 @@ if(Meteor.isClient){
   else{
     console.log("Meteor.Poetic already exhists");
   }
-  Meteor.startup(function () {
-    console.log('hey');
-  });
   // Register the ParamManager under the Meteor.Poetic namespace
   Meteor.Poetic.ParamManager = (function(){
 
@@ -46,7 +43,6 @@ if(Meteor.isClient){
           callback(getParameterByName(paramName));
         }                                                    // the user can maintain scope without using function.bind()
       }
-      console.log('registered');
     }
 
     // This allows you to deregister a param callback by paramname
@@ -65,9 +61,7 @@ if(Meteor.isClient){
     function buildUrl(p, v, r){
       var base = window.location.origin;                            // get the URL currently in state
       var search = '?'                                            // save to default empty but with a param initializer
-      console.log(Params);
       for(var i = 0; i < Params.length; i++){                     // iterate through all params O(n) we should probably speed up
-        console.log('hey');
         if(Params[i].value !== null){                             // if the value isn't blank
           if(p === Params[i].param){
             search += p + "=" + v;
@@ -93,7 +87,6 @@ if(Meteor.isClient){
     // but not push the state forward.
     Interface.setParam = function(param, value, replace){
       buildUrl(param, value, replace);                              // pass the values to build a new url
-      console.log('fired');
       document.dispatchEvent(ChangedURL);                 // url has changed fire an event to trigger callbacks
     }
 
@@ -124,13 +117,11 @@ if(Meteor.isClient){
     // when the document is ready register our callbacks function on the urlchange event.
     window.onload = function(){
       document.addEventListener('urlchange', function(event){
-        console.log('heard');
         executeCallbacks();
       }, false);
       // register forward backwards and directly typed urls to fire this event.
       window.onpopstate = function(){
         document.dispatchEvent(ChangedURL);
-        console.log('fired');
       }
       document.dispatchEvent(ChangedURL);
     };
@@ -142,7 +133,6 @@ if(Meteor.isClient){
             results = regex.exec(location.search);
         return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
     }
-
     return Interface;
   })();
 }
