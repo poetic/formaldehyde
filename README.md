@@ -43,7 +43,7 @@ A simple example usage would be
 
 If you navigate to the page as mydomain.com/?foo=bar then you will see the output bar in the console.
 
-#`DeRegisterParam: function(paramName)`
+#`DeRegisterParam(paramName)`
 
 Simply call this function and pass your param to deactivate a callback if it should only be called based on verification ect.
 
@@ -58,7 +58,7 @@ Meteor.Poetic.ParamManager.DeRegisterParam("foo");
 Meteor.Poetic.ParamManager.setParam("foo", "bar");
 // nothing will be logged and no callback functions will be called
 ```
-#  `setParam: function(param, value, replace)`
+#  `setParam(param, value, replace)`
 
 You should use this method at all times to update your url and never do so with manual javascript window.history.pushState because your callback function will not be fired. Unfortunately current javascript versions do not support a fired event hook during the pushState call.
 
@@ -70,7 +70,7 @@ Using this method fires an event that will register your callback.
 
 `Meteor.Poetic.ParamManager.setParam("foo", "bar");`
 
-#  `getParam: function(param)`
+#  `getParam(param)`
 
 Simple getParam helper function. Even though paramValue is passed to your callback function it may still be useful for you to programatically check for the value of your param during your function so this API was made available. If you pass it a param name it will return that params value, even if it is not a registered param name.
 
