@@ -58,27 +58,27 @@ if(Meteor.isClient){
     // build URL is the interface set to trigger any callbacks whose state may have changed from the current set call
     // This is orientated around a direct javascript call. A template (html) linking method should be added that calls based
     // on multiple param values being changed in one link.
-    function buildUrl(p, v, r){
-      var base = window.location.origin;                            // get the URL currently in state
-      var search = '?'                                            // save to default empty but with a param initializer
-      for(var i = 0; i < Params.length; i++){                     // iterate through all params O(n) we should probably speed up
-        if(Params[i].value !== null){                             // if the value isn't blank
-          if(p === Params[i].param){
-            search += p + "=" + v;
-          }
-          else{
-            search += Params[i].param + "=" + Params[i].value;      // add the param name and value to the url
-          }
-          if(i < Params.length-1){                                // if this isn't the last parameter in the array
-            search += "&";                                        // add another ampersand
+
+    function buildUrl(param, value, replaceState){
+      var path = location.href.split('?')[0];                      // get the URL currently in state
+      var queryString = '?'                                        // save to default empty but with a param initializer
+
+      Params.forEach(function(urlParam, index){
+        if (urlParam.value !== null) {                             // if the value isn't blank
+          if (index > 0) { param = '&' + param }
+
+          if (param === urlParam.param) {
+            queryString += param + "=" + value;
+          } else {
+            queryString += urlParam.param + "=" + urlParam.value;  // add the param name and value to the url
           }
         }
-      }
-      if(r){
-        window.history.replaceState({}, "OptionalTitle", base + search);  // store a new state in memory with the built url
-      }
-      else{
-        window.history.pushState({}, "OptionalTitle", base + search);  // store a new state in memory with the built url
+      });
+
+      if (replaceState) {
+        history.replaceState({}, "OptionalTitle", path + queryString);  // store a new state in memory with the built url
+      } else {
+        history.pushState({}, "OptionalTitle", path + queryString);  // store a new state in memory with the built url
       }
     }
 
