@@ -62,10 +62,10 @@ if(Meteor.isClient){
     function buildUrl(param, value, replaceState){
       var path = location.href.split('?')[0];                      // get the URL currently in state
       var queryString = '?'                                        // save to default empty but with a param initializer
-
+      console.log(path);
       Params.forEach(function(urlParam, index){
-        if (urlParam.value !== null) {                             // if the value isn't blank
-          if (index > 0) { param = '&' + param }
+        if (urlParam.value !== null || urlParam.param === param) {                             // if the value isn't blank
+          if (index > 0) { queryString += '&' }
 
           if (param === urlParam.param) {
             queryString += param + "=" + value;
@@ -74,7 +74,7 @@ if(Meteor.isClient){
           }
         }
       });
-
+      console.log(queryString);
       if (replaceState) {
         history.replaceState({}, "OptionalTitle", path + queryString);  // store a new state in memory with the built url
       } else {
@@ -105,13 +105,13 @@ if(Meteor.isClient){
     // won't be called. If the values are different then the url was Changed so then it will run its callback and then
     // update its internal value to the new value
     function executeCallbacks(){
-      for(var i = 0; i < Params.length; i++){
-        var curVal = getParameterByName(Params[i].param);
-        if(Params[i].value !== curVal){
-          Params[i].callback(curVal);
-          Params[i].value = curVal;
+      Params.forEach(function(curParam, i){
+        var curVal = getParameterByName(curParam.param);
+        if(curParam.value !== curVal){
+          curParam.callback(curVal);
+          curParam.value = curVal;
         }
-      }
+      });
     }
 
     // when the document is ready register our callbacks function on the urlchange event.
