@@ -55,6 +55,11 @@ if(Meteor.isClient){
         }
       }
     }
+
+    Interface.isRegistered = function(paramName){
+      return Params.some(function(param){ return param.param === paramName });
+    }
+
     // build URL is the interface set to trigger any callbacks whose state may have changed from the current set call
     // This is orientated around a direct javascript call. A template (html) linking method should be added that calls based
     // on multiple param values being changed in one link.
@@ -95,6 +100,7 @@ if(Meteor.isClient){
     Interface.getParam = function(param){
       return getParameterByName(param);
     }
+
     // ChangedURL is the event that will be listened to for url changes. Because of this you should always use
     // the paramManager to update the parameter url or ELSE your function will NOT be called.
 
