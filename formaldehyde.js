@@ -74,7 +74,9 @@ if(Meteor.isClient){
             paramStrings.push(urlParam.param + '=' + value);
           }
         } else {
-          paramStrings.push(urlParam.param + '=' + urlParam.value);
+          if (urlParam.value !== null) {
+            paramStrings.push(urlParam.param + '=' + urlParam.value);
+          }
         }
       });
 
