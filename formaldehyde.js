@@ -66,19 +66,19 @@ if(Meteor.isClient){
 
     function buildUrl(param, value, replaceState){
       var path = location.href.split('?')[0];                      // get the URL currently in state
-      var queryString = '?'                                        // save to default empty but with a param initializer
+      var paramStrings = [];
 
-      Params.forEach(function(urlParam, index){
-        if (urlParam.value !== null || urlParam.param === param) {                             // if the value isn't blank
-          if (index > 0) { queryString += '&' }
-
-          if (param === urlParam.param) {
-            queryString += param + "=" + value;
-          } else {
-            queryString += urlParam.param + "=" + urlParam.value;  // add the param name and value to the url
+      Params.forEach(function(urlParam){
+        if (param === urlParam.param) {
+          if (value !== null) {
+            paramStrings.push(urlParam.param + '=' + value);
           }
+        } else {
+          paramStrings.push(urlParam.param + '=' + urlParam.value);
         }
       });
+
+      var queryString = '?' + paramStrings.join('&');
 
       if (replaceState) {
         history.replaceState({}, "OptionalTitle", path + queryString);  // store a new state in memory with the built url
