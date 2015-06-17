@@ -2,15 +2,15 @@
 
 An application state URL param manager. The module allows you to build any javascript object to have variables bound to the url params. This is to allow for easy url control of your app without having to inflict uneeded page loading.  It is basically a param based router system, that will execute callback functions that you pass it.
 
-# Installation 
+# Installation
 
-`meteor add poeticsystems:formaldehyde`
+`meteor add poetic:formaldehyde`
 
 # Namespace
 
-All methods can be called by using the 
+All methods can be called by using the
 
-`Meteor.Poetic.ParamManager.[methodName]();` 
+`Meteor.Poetic.ParamManager.[methodName]();`
 
 If you find this namespace to be too verbose just shorten it in your project to whatever your Preference
 
@@ -25,9 +25,9 @@ PM.[MethodName]();
 
 ```
 paramManager:
-  RegisterParam: function(paramName, callback) 
+  RegisterParam: function(paramName, callback)
   DeRegisterParam: function(paramName)
-  setParam: function(param, value, replace) 
+  setParam: function(param, value, replace)
   getParam: function(param)
 ```
 
@@ -53,7 +53,7 @@ Meteor.Poetic.ParamManager.RegisterParam("foo", function(val){console.log(val);}
 // set the param to bar.
 Meteor.Poetic.ParamManager.setParam("foo", "bar");
 // console will log "bar"
-// deregister the foo param 
+// deregister the foo param
 Meteor.Poetic.ParamManager.DeRegisterParam("foo");
 Meteor.Poetic.ParamManager.setParam("foo", "bar");
 // nothing will be logged and no callback functions will be called
