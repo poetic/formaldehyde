@@ -13,6 +13,6 @@ Package.onUse(function(api) {
 
 Package.onTest(function(api) {
   api.use('tinytest');
-  api.use('formaldehyde');
+  api.use('poetic:formaldehyde');
   api.addFiles('formaldehyde-tests.js');
 });
