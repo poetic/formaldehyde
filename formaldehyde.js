@@ -115,12 +115,30 @@ if(Meteor.isClient){
     // It will check its current value and the value in the URL if these values are the same then its callback
     // won't be called. If the values are different then the url was Changed so then it will run its callback and then
     // update its internal value to the new value
+
     function executeCallbacks(){
-      Params.forEach(function(curParam, i){
-        var curVal = getParameterByName(curParam.param);
-        if(curParam.value !== curVal){
-          curParam.callback(curVal);
-          curParam.value = curVal;
+        // test if query param value can be represented in url
+      var isAQueryValue = function(thing){
+        return (
+          !_.isNull(thing) && !_.isUndefined(thing) && thing !== ''
+        );
+      };
+
+      Params.forEach(function(paramObj){
+        var urlVal = getParameterByName(paramObj.param);
+
+        if (paramObj.value !== urlVal) {
+          if (!isAQueryValue(paramObj.value) && isAQueryValue(urlVal)) {
+            paramObj.callback(urlVal, {added: true});
+
+          } else if (isAQueryValue(paramObj.value) && !isAQueryValue(urlVal)) {
+            paramObj.callback(urlVal, {removed: true});
+
+          } else if (isAQueryValue(paramObj.value) && isAQueryValue(urlVal)) {
+            paramObj.callback(urlVal, {});
+          }
+
+          paramObj.value = urlVal;
         }
       });
     }
