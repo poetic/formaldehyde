@@ -38,21 +38,25 @@ if(Meteor.isClient){
     // your function will most likely impliment some logic based on the value passed back.
 
     Interface.RegisterParam = function(paramName, callback){
-      // TODO add a test to check if paramName or callback are null and throw and error
-      Params[Params.length] = {
+      check(paramName, String);
+      check(callback, Function);
+
+        // TODO add a test to check if paramName or callback are null and throw and error
+      Params.push({
         param: paramName,                                    // save the parameter name passed
         value: null,
         callback: function(){
           callback(getParameterByName(paramName));
         }                                                    // the user can maintain scope without using function.bind()
-      }
+      });
     }
 
     // This allows you to deregister a param callback by paramname
 
     Interface.DeRegisterParam = function(paramName){
-      // iterate through the params object and find a match to the paramName passed then remove it
+      check(paramName, String);
 
+        // iterate through the params object and find a match to the paramName passed then remove it
       Params.forEach(function(param, i, params){
         if(param.param === paramName){
           params.splice(i, 1);
@@ -61,6 +65,8 @@ if(Meteor.isClient){
     }
 
     Interface.isRegistered = function(paramName){
+      check(paramName, String);
+
       return Params.some(function(param){ return param.param === paramName });
     }
 
@@ -70,6 +76,10 @@ if(Meteor.isClient){
     // but not push the state forward.
 
     Interface.setParam = function(param, value, replace){
+      check(param, String);
+      check(value, Match.Any);
+      check(replace, Match.Optional(Boolean));
+
       buildUrl(param, value, replace);                              // pass the values to build a new url
       document.dispatchEvent(ChangedURL);                 // url has changed fire an event to trigger callbacks
     }
@@ -78,6 +88,8 @@ if(Meteor.isClient){
     // Set and Link methods are used properly, but it does allow for restful principles and easier debugging.
 
     Interface.getParam = function(param){
+      check(param, String);
+
       return getParameterByName(param);
     }
 
@@ -114,7 +126,7 @@ if(Meteor.isClient){
     }
 
     // build URL is the interface set to trigger any callbacks whose state may have changed from the current set call
-    // This is orientated around a direct javascript call. A template (html) linking method should be added that calls based
+    // This is oriented around a direct javascript call. A template (html) linking method should be added that calls based
     // on multiple param values being changed in one link.
 
     function buildUrl(param, value, replaceState){
