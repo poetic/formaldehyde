@@ -45,9 +45,7 @@ if(Meteor.isClient){
       Params.push({
         param: paramName,                                    // save the parameter name passed
         value: null,
-        callback: function(){
-          callback(getParameterByName(paramName));
-        }                                                    // the user can maintain scope without using function.bind()
+        callback: callback
       });
     }
 
@@ -153,10 +151,10 @@ if(Meteor.isClient){
 
       var path = location.href.split('?')[0];
       var queryString = location.href.split('?')[1];
+      var queryParam = param + '=' + value;
       var queryArray = [];
-      var replacementString;
       var hasValue = (!_.isNull(value) && !_.isUndefined(value));
-      var paramFound;
+      var replacementString, paramFound;
 
       if (queryString) {
         queryArray = queryString.split('&');
@@ -164,16 +162,13 @@ if(Meteor.isClient){
         queryArray.forEach(function(query, i){
           if (query.split('=')[0] === param) {
             paramFound = true;
-
-            queryArray[i] = hasValue ? (param + '=' + value) : null;
+            queryArray[i] = hasValue ? queryParam : null;
           }
         });
 
-        if (!paramFound && hasValue) {
-          queryArray.push(param + '=' + value);
-        }
-      } else {
-        if (hasValue) { queryArray.push(param + '=' + value) }
+        if (!paramFound && hasValue) { queryArray.push(queryParam) }
+      } else if (hasValue) {
+        queryArray.push(queryParam)
       }
 
       queryArray = _.compact(queryArray);
@@ -186,6 +181,8 @@ if(Meteor.isClient){
         } else {
           history.pushState({}, "OptionalTitle", path + replacementString);  // store a new state in memory with the built url
         }
+      } else {
+        history.pushState({}, "OptionalTitle", path);  // store a new state in memory with the built url
       }
     }
 
