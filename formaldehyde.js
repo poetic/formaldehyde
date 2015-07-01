@@ -118,27 +118,44 @@ if(Meteor.isClient){
     // on multiple param values being changed in one link.
 
     function buildUrl(param, value, replaceState){
-      var path = location.href.split('?')[0];                      // get the URL currently in state
-      var paramStrings = [];
+      check(param, String);
+      check(value, Match.Any);
 
-      Params.forEach(function(urlParam){
-        if (param === urlParam.param) {
-          if (value !== null) {
-            paramStrings.push(urlParam.param + '=' + value);
+      var path = location.href.split('?')[0];
+      var queryString = location.href.split('?')[1];
+      var queryArray = [];
+      var replacementString;
+      var hasValue = (!_.isNull(value) && !_.isUndefined(value));
+      var paramFound;
+
+      if (queryString) {
+        queryArray = queryString.split('&');
+
+        queryArray.forEach(function(query, i){
+          if (query.split('=')[0] === param) {
+            paramFound = true;
+
+            queryArray[i] = hasValue ? (param + '=' + value) : null;
           }
-        } else {
-          if (urlParam.value) {
-            paramStrings.push(urlParam.param + '=' + urlParam.value);
-          }
+        });
+
+        if (!paramFound && hasValue) {
+          queryArray.push(param + '=' + value);
         }
-      });
-
-      var queryString = '?' + paramStrings.join('&');
-
-      if (replaceState) {
-        history.replaceState({}, "OptionalTitle", path + queryString);  // store a new state in memory with the built url
       } else {
-        history.pushState({}, "OptionalTitle", path + queryString);  // store a new state in memory with the built url
+        if (hasValue) { queryArray.push(param + '=' + value) }
+      }
+
+      queryArray = _.compact(queryArray);
+
+      if (queryArray.length) {
+        replacementString = '?' + queryArray.join('&');
+
+        if (replaceState) {
+          history.replaceState({}, "OptionalTitle", path + replacementString);  // store a new state in memory with the built url
+        } else {
+          history.pushState({}, "OptionalTitle", path + replacementString);  // store a new state in memory with the built url
+        }
       }
     }
 
