@@ -35,11 +35,13 @@ paramManager:
 
 #`RegisterParam(paramName, callback)`
 
-This function will register your parameter name and call the callback function anytime that value changes. This function accepts two arguments the first is the actual name of the URL parameter and the second is the function that you want to fire when it changes.  This function will be called with one arguement which is the value of that parameter in its current state.
+This function will register your parameter name and call the callback function anytime that value changes. This function accepts two arguments the first is the actual name of the URL parameter and the second is the function that you want to fire when it changes.  This function will be called with two arguments: the param's current value and an options object defined by the package.
 
 A simple example usage would be
 
-`Meteor.Poetic.ParamManager.RegisterParam("foo", function(val){console.log(val);});`
+`Meteor.Poetic.ParamManager.RegisterParam("foo", function(val, options){console.log(val, options);});`
+
+The `options` object can have one of two keys: `added` or `removed`, which refer to query params being added or removed from the url so that you can perform any init/teardown operations.
 
 If you navigate to the page as mydomain.com/?foo=bar then you will see the output bar in the console.
 
