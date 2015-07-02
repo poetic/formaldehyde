@@ -116,6 +116,8 @@ if(Meteor.isClient){
 
     function executeCallbacks(){
         // test if query param value can be represented in url
+      var callbacks = [];
+      var promises;
       var isAQueryValue = function(thing){
         return (
           !_.isNull(thing) && !_.isUndefined(thing) && thing !== ''
@@ -127,18 +129,32 @@ if(Meteor.isClient){
 
         if (paramObj.value !== urlVal) {
           if (!isAQueryValue(paramObj.value) && isAQueryValue(urlVal)) {
-            paramObj.callback(urlVal, {added: true});
+            callbacks.push({func: paramObj.callback, val: urlVal, status: {added: true}});
 
           } else if (isAQueryValue(paramObj.value) && !isAQueryValue(urlVal)) {
-            paramObj.callback(urlVal, {removed: true});
+            callbacks.push({func: paramObj.callback, val: urlVal, status: {removed: true}});
 
           } else if (isAQueryValue(paramObj.value) && isAQueryValue(urlVal)) {
-            paramObj.callback(urlVal, {});
+            callbacks.push({func: paramObj.callback, val: urlVal, status: {}});
           }
 
           paramObj.value = urlVal;
         }
       });
+
+      if (callbacks.length) {
+        promises = callbacks.map((cb) => {
+          return () => {
+            return new Promise((resolve, reject) => {
+              return cb.func(cb.val, cb.status, resolve)
+            });
+          };
+        });
+
+        promises.reduce((promise, next) => {
+          return promise.then(next);
+        }, Promise.resolve());
+      }
     }
 
     // build URL is the interface set to trigger any callbacks whose state may have changed from the current set call

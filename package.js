@@ -8,7 +8,9 @@ Package.describe({
 
 Package.onUse(function(api) {
   api.versionsFrom('1.1.0.2');
-  api.addFiles('formaldehyde.js');
+  api.use('grigio:babel@0.1.4');
+  api.imply('grigio:babel@0.1.4');
+  api.addFiles('formaldehyde.es6.js');
 });
 
 Package.onTest(function(api) {
