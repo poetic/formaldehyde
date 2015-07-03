@@ -11,8 +11,8 @@ if(Meteor.isClient){
     console.log("Meteor.Poetic already exhists");
   }
 
-  // Register the ParamManager under the Meteor.Poetic namespace
-  Meteor.Poetic.ParamManager = (function(){
+  // Register Formaldehyde under the Meteor.Poetic namespace
+  Meteor.Poetic.Formaldehyde = (function(){
 
     // Interface is the object that will be returned.. any function or variable added to this will be available
     // in the global scope Meteor.Poetic.ParamManager.[methodName]
@@ -29,15 +29,15 @@ if(Meteor.isClient){
 
     var Params = [];
 
-    // RegisterParamFunction is the method to register your parameter with a callback function.
+    // register is the method to register your parameter with a callback function.
     // based on the model above for params objects your call to this should look like
     //
-    // Meteor.Poetic.ParamManager.RegisterParamFunction('user', function(value){console.log(value);});
+    // Meteor.Poetic.ParamManager.register('user', function(value){console.log(value);});
     //
     // this will successfully console.log the new value when the value of user changes.
     // your function will most likely impliment some logic based on the value passed back.
 
-    Interface.RegisterParam = function(paramName, callback){
+    Interface.register = function(paramName, callback){
       check(paramName, String);
       check(callback, Function);
 
@@ -51,7 +51,7 @@ if(Meteor.isClient){
 
     // This allows you to deregister a param callback by paramname
 
-    Interface.DeRegisterParam = function(paramName){
+    Interface.deregister = function(paramName){
       check(paramName, String);
 
         // iterate through the params object and find a match to the paramName passed then remove it
@@ -73,7 +73,7 @@ if(Meteor.isClient){
     // callback functions that are rigistered to the change in url replace is a third optional arguement to update params
     // but not push the state forward.
 
-    Interface.setParam = function(param, value, replace){
+    Interface.set = function(param, value, replace){
       check(param, String);
       check(value, Match.Any);
       check(replace, Match.Optional(Boolean));
@@ -85,7 +85,7 @@ if(Meteor.isClient){
     // allow the user an easy interface to find or poll for the value of param. This shouldn't ever be needed if the que
     // Set and Link methods are used properly, but it does allow for restful principles and easier debugging.
 
-    Interface.getParam = function(param){
+    Interface.get = function(param){
       check(param, String);
 
       return getParameterByName(param);
@@ -115,16 +115,17 @@ if(Meteor.isClient){
     // update its internal value to the new value
 
     function executeCallbacks(){
-        // test if query param value can be represented in url
       var callbacks = [];
       var promises;
-      var isAQueryValue = function(thing){
+
+        // test if query param value can be represented in url
+      var isAQueryValue = (thing) => {
         return (
           !_.isNull(thing) && !_.isUndefined(thing) && thing !== ''
         );
       };
 
-      Params.forEach(function(paramObj){
+      Params.forEach(paramObj => {
         var urlVal = getParameterByName(paramObj.param);
 
         if (paramObj.value !== urlVal) {
@@ -143,10 +144,10 @@ if(Meteor.isClient){
       });
 
       if (callbacks.length) {
-        promises = callbacks.map((cb) => {
+        promises = callbacks.map(cb => {
           return () => {
             return new Promise((resolve, reject) => {
-              return cb.func(cb.val, cb.status, resolve)
+              return cb.func(cb.val, cb.status, resolve);
             });
           };
         });

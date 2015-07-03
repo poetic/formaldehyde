@@ -1,66 +1,63 @@
 # formaldehyde
 
-An application state URL param manager. The module allows you to build any javascript object to have variables bound to the url params. This is to allow for easy url control of your app without having to inflict uneeded page loading.  It is basically a param based router system, that will execute callback functions that you pass it.
+Formaldehyde is a query param based router that allows you to bind a callback function to a given query param. It gives you fine grained control over the order of param resolution, in addition to easy pushState/replaceState usage. The goal is to give you total control over your Meteor app's query params and prevent unneeded page loading and rerendering.
 
 # Installation
 
 `meteor add poetic:formaldehyde`
 
-# Namespace
-
-All methods can be called by using the
-
-`Meteor.Poetic.ParamManager.[methodName]();`
-
-If you find this namespace to be too verbose just shorten it in your project to whatever your Preference
-
-```
-var PM = Meteor.Poetic.ParamManager;
-// then call
-PM.[MethodName]();
-```
-
-
-# Object API
-
-```
-paramManager:
-  RegisterParam: function(paramName, callback)
-  DeRegisterParam: function(paramName)
-  setParam: function(param, value, replace)
-  getParam: function(param)
-```
-
 # Methods
 
-#`RegisterParam(paramName, callback)`
+All methods exist under the `Meteor.Poetic.Formaldehyde` namespace.
 
-This function will register your parameter name and call the callback function anytime that value changes. This function accepts two arguments the first is the actual name of the URL parameter and the second is the function that you want to fire when it changes.  This function will be called with two arguments: the param's current value and an options object defined by the package.
+## `register(paramName, callback)`
 
-A simple example usage would be
+This method will register your parameter name and call the callback function anytime that value changes. This method accepts two arguments: the first is the name of the URL parameter; the second is the function that you want to fire when the parameter changes.  The callback function will be called with three arguments: the param's current value; a state object defined by the package; and a `done` function that you will call to allow the next callback in the series to execute.
 
-`Meteor.Poetic.ParamManager.RegisterParam("foo", function(val, options){console.log(val, options);});`
+The following are some basic examples:
+```
+Meteor.Poetic.Formaldehyde.register('test', function(val, state, done){
+  console.log('test callback fired');
+  done();
+});
 
-The `options` object can have one of two keys: `added` or `removed`, which refer to query params being added or removed from the url so that you can perform any init/teardown operations.
+Meteor.Poetic.Formaldehyde.register('testAsync', function(val, state, done){
+  console.log('testAsync callback fired');
+  setTimeout(function(){
+    console.log('testAsync callback finishing after 3 seconds');
+    done();
+  }, 3000);
+});
+```
 
-If you navigate to the page as mydomain.com/?foo=bar then you will see the output bar in the console.
+The `state` object can have one of two keys: `added` or `removed` (whose value will always be `true`), which refer to query params being added or removed from the url so that you can perform any init/teardown operations; otherwise `state` is an empty object.
 
-#`DeRegisterParam(paramName)`
+It is important to note that callbacks will be fired in the order that they are registered, so it is advisable to put all of your registrations into a single file to make the order of execution explicit. Callbacks are fired serially, meaning the next callback will wait for the current callback to fire `done()` before executing.
 
-Simply call this function and pass your param to deactivate a callback if it should only be called based on verification ect.
+## `deregister(paramName)`
+
+Simply call this function and pass your param to deactivate a callback if it should only be called based on verification etc.
 
 ```
 // register the param foo
-Meteor.Poetic.ParamManager.RegisterParam("foo", function(val){console.log(val);});
+Meteor.Poetic.Formaldehyde.register("foo", function(val, status, done){
+  console.log(val);
+  done();
+});
 // set the param to bar.
-Meteor.Poetic.ParamManager.setParam("foo", "bar");
+Meteor.Poetic.Formaldehyde.set("foo", "bar");
 // console will log "bar"
 // deregister the foo param
-Meteor.Poetic.ParamManager.DeRegisterParam("foo");
-Meteor.Poetic.ParamManager.setParam("foo", "bar");
+Meteor.Poetic.Formaldehyde.deregister("foo");
+Meteor.Poetic.Formaldehyde.set("foo", "bar");
 // nothing will be logged and no callback functions will be called
 ```
-#  `setParam(param, value, replace)`
+
+## `isRegistered(param)`
+
+Check if a query param is currently registered. Returns a boolean.
+
+##  `set(param, value, replace)`
 
 You should use this method at all times to update your url and never do so with manual javascript window.history.pushState because your callback function will not be fired. Unfortunately current javascript versions do not support a fired event hook during the pushState call.
 
@@ -70,14 +67,14 @@ The replace boolean is useful for situations such as google maps when your param
 
 Using this method fires an event that will register your callback.
 
-`Meteor.Poetic.ParamManager.setParam("foo", "bar");`
+`Meteor.Poetic.Formaldehyde.set("foo", "bar");`
 
-#  `getParam(param)`
+## `get(param)`
 
-Simple getParam helper function. Even though paramValue is passed to your callback function it may still be useful for you to programatically check for the value of your param during your function so this API was made available. If you pass it a param name it will return that params value, even if it is not a registered param name.
+Simple getter method. Even though paramValue is passed to your callback function it may still be useful for you to programatically check for the value of your param during your function so this API was made available. If you pass it a param name it will return that params value, even if it is not a registered param name.
 
 ```
 // with assumed domain address: mydomain.com/?foo=bar
-var x = Meteor.Poetic.ParamManager.getParam("foo");
+var x = Meteor.Poetic.Formaldehyde.get("foo");
 console.log(x);  // outputs bar
 ```
