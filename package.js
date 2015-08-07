@@ -1,6 +1,6 @@
 Package.describe({
   name: 'poetic:formaldehyde',
-  version: '0.0.6',
+  version: '0.0.7',
   summary: 'Easily manage application state using URL parameters.',
   git: 'https://github.com/poetic/formaldehyde.git',
   documentation: 'README.md'
