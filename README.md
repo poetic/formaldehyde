@@ -8,7 +8,7 @@ Formaldehyde is a query param based router that allows you to bind a callback fu
 
 # Methods
 
-All methods exist under the `Meteor.Poetic.Formaldehyde` namespace.
+All methods exist under the `Formaldehyde` namespace.
 
 ## `register(paramName, callback)`
 
@@ -16,12 +16,12 @@ This method will register your parameter name and call the callback function any
 
 The following are some basic examples:
 ```
-Meteor.Poetic.Formaldehyde.register('test', function(val, state, done){
+Formaldehyde.register('test', function(val, state, done){
   console.log('test callback fired');
   done();
 });
 
-Meteor.Poetic.Formaldehyde.register('testAsync', function(val, state, done){
+Formaldehyde.register('testAsync', function(val, state, done){
   console.log('testAsync callback fired');
   setTimeout(function(){
     console.log('testAsync callback finishing after 3 seconds');
@@ -40,16 +40,16 @@ Simply call this function and pass your param to deactivate a callback if it sho
 
 ```
 // register the param foo
-Meteor.Poetic.Formaldehyde.register("foo", function(val, status, done){
+Formaldehyde.register("foo", function(val, status, done){
   console.log(val);
   done();
 });
 // set the param to bar.
-Meteor.Poetic.Formaldehyde.set("foo", "bar");
+Formaldehyde.set("foo", "bar");
 // console will log "bar"
 // deregister the foo param
-Meteor.Poetic.Formaldehyde.deregister("foo");
-Meteor.Poetic.Formaldehyde.set("foo", "bar");
+Formaldehyde.deregister("foo");
+Formaldehyde.set("foo", "bar");
 // nothing will be logged and no callback functions will be called
 ```
 
@@ -67,7 +67,7 @@ The replace boolean is useful for situations such as google maps when your param
 
 Using this method fires an event that will register your callback.
 
-`Meteor.Poetic.Formaldehyde.set("foo", "bar");`
+`Formaldehyde.set("foo", "bar");`
 
 ## `get(param)`
 
@@ -75,6 +75,6 @@ Simple getter method. Even though paramValue is passed to your callback function
 
 ```
 // with assumed domain address: mydomain.com/?foo=bar
-var x = Meteor.Poetic.Formaldehyde.get("foo");
+var x = Formaldehyde.get("foo");
 console.log(x);  // outputs bar
 ```
